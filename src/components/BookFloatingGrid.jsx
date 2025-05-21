@@ -1,77 +1,119 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const generateRandomStyles = () => ({
-  x: Math.random() * 40 - 20,
-  y: Math.random() * 40 - 20,
-  rotate: Math.random() * 20 - 10,
+const FLOAT_INTERVAL = 3000;
+
+const generateFloat = () => ({
+  y: Math.random() * 10 - 5,
+  x: Math.random() * 8 - 4,
+  rotate: Math.random() * 4 - 2,
 });
 
-const FloatingBook = ({
-  src,
-  alt,
-  isSelected,
-  isDimmed,
-  onClick,
-  onHover,
-  onLeave,
-}) => {
-  const [animation, setAnimation] = useState(generateRandomStyles());
+const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
+  const anglePerBook = 360 / total;
+  const bookAngle = index * anglePerBook + currentAngle;
+
+  const rad = (bookAngle * Math.PI) / 180;
+  const x = radius * Math.sin(rad);
+  const z = radius * Math.cos(rad);
+
+  const isFront = Math.abs((bookAngle % 360) - 0) < anglePerBook / 2;
+
+  const controls = useAnimation();
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setAnimation(generateRandomStyles());
-    }, 3000 + Math.random() * 2000);
+    const float = () => controls.start(generateFloat());
+    float();
+    const interval = setInterval(float, FLOAT_INTERVAL);
     return () => clearInterval(interval);
-  }, []);
+  }, [controls]);
 
   return (
-    <motion.img
-      src={src}
-      alt={alt}
-      className={`w-32 h-48 object-cover rounded-xl shadow-xl cursor-pointer transition-transform duration-500
-        ${isSelected ? "scale-125 z-30" : ""}
-        ${isDimmed ? "scale-90 opacity-50 z-0" : ""}
-        ${!isSelected && !isDimmed ? "z-10" : ""}
-      `}
-      animate={animation}
+    <motion.div
+      className="absolute top-1/2 left-1/2 w-32 h-48"
+      animate={controls}
+      initial={false}
       transition={{ duration: 3, ease: "easeInOut" }}
-      onClick={onClick}
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
-    />
+      style={{
+        transformStyle: "preserve-3d",
+        perspective: 1000,
+      }}
+    >
+      <motion.img
+        src={book.cover}
+        alt={book.title}
+        className="w-full h-full object-cover rounded-xl shadow-xl cursor-pointer"
+        animate={{
+          x,
+          y: "-50%",
+          z,
+          rotateY: 0, // <-- no rotation at all, always upright
+          scale: isFront ? 1.2 : 0.85,
+          zIndex: isFront ? 20 : 5,
+        }}
+        transition={{ type: "spring", stiffness: 200, damping: 30 }}
+        draggable={false}
+      />
+    </motion.div>
   );
 };
 
-export default function BookFloatingGrid({ books }) {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [selectedIndex, setSelectedIndex] = useState(null);
+export default function BookCarousel3D({ books }) {
+  const [angle, setAngle] = useState(0);
 
-  const handleBookClick = (index) => {
-    setSelectedIndex((prev) => (prev === index ? null : index));
+  const handleNext = () => {
+    setAngle((prev) => prev - 60); // rotate right
   };
 
-  return (
-    <div className="grid grid-cols-3 gap-6 justify-items-center items-center min-h-screen bg-gradient-to-b from-slate-100 to-blue-200 p-10">
-      {books.slice(0, 6).map((book, index) => {
-        const isSelected = selectedIndex === index;
-        const isDimmed = selectedIndex !== null && selectedIndex !== index;
+  const handlePrev = () => {
+    setAngle((prev) => prev + 60); // rotate left
+  };
 
-        return (
+  const handleSwipe = (event, info) => {
+    const swipe = info.offset.x;
+    if (swipe < -50) handleNext();
+    else if (swipe > 50) handlePrev();
+  };
+
+  const radius = 300;
+
+  return (
+    <motion.div
+      className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-100 to-blue-200 overflow-hidden"
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      onDragEnd={handleSwipe}
+      style={{ touchAction: "pan-y" }}
+    >
+      <div className="relative w-full max-w-6xl h-[400px]">
+        {books.map((book, index) => (
           <FloatingBook
             key={index}
-            src={book.cover}
-            alt={book.title}
-            isSelected={isSelected}
-            isDimmed={isDimmed}
-            onClick={() => handleBookClick(index)}
-            onHover={() => setHoveredIndex(index)}
-            onLeave={() => setHoveredIndex(null)}
+            book={book}
+            index={index}
+            total={books.length}
+            radius={radius}
+            currentAngle={angle}
           />
-        );
-      })}
-    </div>
+        ))}
+      </div>
+
+      {/* Navigation Buttons */}
+      <button
+        onClick={handlePrev}
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white shadow-md p-2 rounded-full hover:bg-gray-200 z-50"
+      >
+        <ChevronLeft />
+      </button>
+      <button
+        onClick={handleNext}
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white shadow-md p-2 rounded-full hover:bg-gray-200 z-50"
+      >
+        <ChevronRight />
+      </button>
+    </motion.div>
   );
 }
