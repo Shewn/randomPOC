@@ -34,7 +34,7 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
 
   const isFront = Math.abs((bookAngle % 360) - 0) < anglePerBook / 2;
 
-  const blurAmount = isFront ? 0 : Math.min(Math.abs(z / 100), 6);
+  const blurAmount = isFront ? 0 : 1;
 
   const angleToFront = Math.abs((bookAngle % 360) - 180);
 
