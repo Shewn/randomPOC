@@ -18,8 +18,7 @@ const normalizeAngle = (angle) => ((angle % 360) + 360) % 360;
 
 const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
   const anglePerBook = 360 / total;
-  const bookAngle = index * anglePerBook + currentAngle;
-
+  const bookAngle = index * anglePerBook + normalizeAngle(currentAngle);
   const rad = (bookAngle * Math.PI) / 180;
   const x = radius * Math.sin(rad);
   const z = radius * Math.cos(rad);
@@ -44,7 +43,7 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
 
   const isBack = angleToBack < anglePerBook / 2;
 
-  const verticalLift = isBack ? -350 : 0; // move upward if it's the farthest back
+  const verticalLift = isBack ? -250 : isFront ? 75 : -100; // move upward if it's the farthest back
   const horizontalShift = isBack ? 40 : 0;
 
   const controls = useAnimation();
@@ -126,7 +125,7 @@ export default function BookCarousel3D({ books }) {
     else if (swipe > 50) handlePrev();
   };
 
-  const radius = 300;
+  const radius = 200;
 
   return (
     <motion.div
