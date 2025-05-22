@@ -5,12 +5,16 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const FLOAT_INTERVAL = 3000;
-
+const randomXPosition = Math.floor(Math.random() * 31) - 15;
+const randomYPosition = Math.floor(Math.random() * 41) - 20;
+const randomRotatePosition = Math.floor(Math.random() * 31) - 15;
 const generateFloat = () => ({
-  y: Math.random() * 10 - 5,
-  x: Math.random() * 8 - 4,
-  rotate: Math.random() * 4 - 2,
+  y: Math.random() * 60 - 30, // Float up/down more (±30px)
+  x: Math.random() * 30 - 15, // Optional: more lateral drift
+  rotate: Math.random() * 6 - 3, // Optional: slightly more rotation
 });
+
+const normalizeAngle = (angle) => ((angle % 360) + 360) % 360;
 
 const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
   const anglePerBook = 360 / total;
@@ -20,15 +24,52 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
   const x = radius * Math.sin(rad);
   const z = radius * Math.cos(rad);
 
+  // Shadow intensity and offset based on depth
+  const shadowDepth = Math.max(0, 1 - z / 600); // 1 (front) -> ~0 (back)
+  const shadowOffsetY = 10 + shadowDepth * 20; // offset more when closer
+  const shadowBlur = 15 + shadowDepth * 30;
+
+  const shadowColor = `rgba(0, 0, 0, ${0.3 + shadowDepth * 0.2})`;
+
+  const boxShadow = `${0}px ${shadowOffsetY}px ${shadowBlur}px ${shadowColor}`;
+
   const isFront = Math.abs((bookAngle % 360) - 0) < anglePerBook / 2;
 
+  const blurAmount = isFront ? 0 : Math.min(Math.abs(z / 100), 6);
+
+  const angleToFront = Math.abs((bookAngle % 360) - 180);
+
+  const normalizedAngle = normalizeAngle(bookAngle);
+  const angleToBack = Math.abs(normalizedAngle - 180);
+
+  const isBack = angleToBack < anglePerBook / 2;
+
+  const verticalLift = isBack ? -350 : 0; // move upward if it's the farthest back
+  const horizontalShift = isBack ? 40 : 0;
+
   const controls = useAnimation();
+  const [floatOffset, setFloatOffset] = useState({ x: 0, y: 0, rotate: 0 });
 
   useEffect(() => {
-    const float = () => controls.start(generateFloat());
-    float();
-    const interval = setInterval(float, FLOAT_INTERVAL);
-    return () => clearInterval(interval);
+    const randomFloat = () => {
+      const newOffset = generateFloat();
+      setFloatOffset(newOffset);
+      controls.start(newOffset);
+    };
+
+    // Random initial delay
+    const initialDelay = Math.random() * 2000;
+
+    const timeout = setTimeout(() => {
+      randomFloat();
+      const interval = setInterval(
+        randomFloat,
+        FLOAT_INTERVAL + Math.random() * 1000
+      );
+      return () => clearInterval(interval);
+    }, initialDelay);
+
+    return () => clearTimeout(timeout);
   }, [controls]);
 
   return (
@@ -40,19 +81,26 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
       style={{
         transformStyle: "preserve-3d",
         perspective: 1000,
+        zIndex: isFront ? 20 : 5,
       }}
     >
       <motion.img
         src={book.cover}
         alt={book.title}
-        className="w-full h-full object-cover rounded-xl shadow-xl cursor-pointer"
+        className="w-full h-full object-cover shadow-xl cursor-pointer"
+        style={{
+          filter: `blur(${blurAmount}px)`,
+          boxShadow,
+        }}
         animate={{
-          x,
-          y: "-50%",
+          x: x + floatOffset.x + horizontalShift,
+          y: `calc(-50% + ${floatOffset.y + verticalLift}px)`,
           z,
-          rotateY: 0, // <-- no rotation at all, always upright
-          scale: isFront ? 1.2 : 0.85,
-          zIndex: isFront ? 20 : 5,
+          rotateY: 0,
+          rotate: floatOffset.rotate,
+          scale: isFront ? 1.2 : isBack ? 0.7 : 1,
+          // zIndex: isFront ? 20 : 5,
+          opacity: 1,
         }}
         transition={{ type: "spring", stiffness: 200, damping: 30 }}
         draggable={false}
