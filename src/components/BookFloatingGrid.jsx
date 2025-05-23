@@ -43,8 +43,8 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
 
   const isBack = angleToBack < anglePerBook / 2;
 
-  const verticalLift = isBack ? -250 : isFront ? 75 : -100; // move upward if it's the farthest back
-  const horizontalShift = isBack ? 40 : 0;
+  const verticalLift = isBack ? -250 : isFront ? 75 : Math.random() * 100 - 130; // move upward if it's the farthest back
+  const horizontalShift = isBack ? 40 : Math.random() * 60 - 30;
 
   const controls = useAnimation();
   const [floatOffset, setFloatOffset] = useState({ x: 0, y: 0, rotate: 0 });
@@ -80,7 +80,7 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
       style={{
         transformStyle: "preserve-3d",
         perspective: 1000,
-        zIndex: isFront ? 20 : 5,
+        zIndex: isFront ? 20 : isBack ? 5 : 15,
       }}
     >
       <motion.img
@@ -125,7 +125,7 @@ export default function BookCarousel3D({ books }) {
     else if (swipe > 50) handlePrev();
   };
 
-  const radius = 200;
+  const radius = 300;
 
   return (
     <motion.div
