@@ -17,6 +17,8 @@ const generateFloat = () => ({
 const normalizeAngle = (angle) => ((angle % 360) + 360) % 360;
 
 const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   const anglePerBook = 360 / total;
   const bookAngle = index * anglePerBook + normalizeAngle(currentAngle);
   const rad = (bookAngle * Math.PI) / 180;
@@ -30,7 +32,12 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
 
   const shadowColor = `rgba(0, 0, 0, ${0.3 + shadowDepth * 0.2})`;
 
-  const boxShadow = `${0}px ${shadowOffsetY}px ${shadowBlur}px ${shadowColor}`;
+  const hoverGlow = isHovered
+    ? `0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(0, 132, 255, 0.4)`
+    : "";
+  const boxShadow = `${0}px ${shadowOffsetY}px ${shadowBlur}px ${shadowColor}${
+    isHovered ? `, ${hoverGlow}` : ""
+  }`;
 
   const isFront = Math.abs((bookAngle % 360) - 0) < anglePerBook / 2;
 
@@ -42,6 +49,9 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
   const angleToBack = Math.abs(normalizedAngle - 180);
 
   const isBack = angleToBack < anglePerBook / 2;
+
+  const scale = isFront ? 1.2 : isBack ? 0.7 : 1;
+  const finalScale = isHovered ? scale + 0.1 : scale;
 
   const verticalLift = isBack ? -250 : isFront ? 75 : Math.random() * 100 - 130; // move upward if it's the farthest back
   const horizontalShift = isBack ? 40 : Math.random() * 60 - 30;
@@ -97,19 +107,54 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
           z,
           rotateY: 0,
           rotate: floatOffset.rotate,
-          scale: isFront ? 1.2 : isBack ? 0.7 : 1,
+          scale: finalScale,
           // zIndex: isFront ? 20 : 5,
           opacity: 1,
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         transition={{ type: "spring", stiffness: 200, damping: 30 }}
         draggable={false}
       />
+      {/* {isHovered && (
+        <motion.div
+          className="absolute top-0 left-0 w-full h-full pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div className="w-full h-full rounded-xl shimmer-overlay" />
+        </motion.div>
+      )} */}
+      {isHovered && (
+        <motion.div
+          className="absolute inset-0 rounded-xl pointer-events-none"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 0.6, scale: 1.3 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          style={{
+            background:
+              "radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(0,162,255,0.1) 50%, transparent 70%)",
+            zIndex: -1,
+          }}
+        />
+      )}
     </motion.div>
   );
 };
 
 export default function BookCarousel3D({ books }) {
   const [angle, setAngle] = useState(0);
+
+  const [showBooks, setShowBooks] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowBooks(true);
+    }, 500); // syncs with explosion (adjust as needed)
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleNext = () => {
     setAngle((prev) => prev - 60); // rotate right
@@ -129,26 +174,33 @@ export default function BookCarousel3D({ books }) {
 
   return (
     <motion.div
-      className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-100 to-blue-200 overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center from-slate-100 to-blue-200 overflow-hidden"
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={handleSwipe}
       style={{ touchAction: "pan-y" }}
     >
       <div className="relative w-full max-w-6xl h-[400px]">
-        {books.map((book, index) => (
-          <FloatingBook
-            key={index}
-            book={book}
-            index={index}
-            total={books.length}
-            radius={radius}
-            currentAngle={angle}
-          />
-        ))}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: showBooks ? 1 : 0 }}
+          transition={{ duration: 3.5, ease: "easeOut" }}
+          className="relative w-full max-w-6xl h-[400px]"
+        >
+          {books.map((book, index) => (
+            <FloatingBook
+              key={index}
+              book={book}
+              index={index}
+              total={books.length}
+              radius={radius}
+              currentAngle={angle}
+            />
+          ))}
+        </motion.div>
       </div>
 
-      {/* Navigation Buttons */}
+      {/* Navigation Buttons
       <button
         onClick={handlePrev}
         className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white shadow-md p-2 rounded-full hover:bg-gray-200 z-50"
@@ -160,7 +212,7 @@ export default function BookCarousel3D({ books }) {
         className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white shadow-md p-2 rounded-full hover:bg-gray-200 z-50"
       >
         <ChevronRight />
-      </button>
+      </button> */}
     </motion.div>
   );
 }
