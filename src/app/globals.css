@@ -73,7 +73,7 @@ body {
   position: relative;
   z-index: 5; /* Ensure it's above the canvas */
   opacity: 0;
-  animation: fadeInBooks 3s ease-out 2s forwards;
+  animation: fadeInBooks 3s ease-out 4.5s forwards;
 }
 
 @keyframes fadeInBooks {
@@ -129,4 +129,17 @@ body {
     opacity: 0;
     visibility: hidden;
   }
+}
+
+body {
+  margin: 0;
+}
+
+#canvas-container-div {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
 }

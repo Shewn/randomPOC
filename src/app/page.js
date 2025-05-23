@@ -1,14 +1,21 @@
 "use client";
 
 import BookFloatingGrid from "@/components/BookFloatingGrid";
-import ParticleExplosion from "@/components/ParticleExplosion";
 
 import { useEffect } from "react";
 import { startConfetti } from "@/utils/confetti";
+import { runVerletConfettiAnimation } from "@/utils/verletConfetti";
 
 export default function Home() {
   useEffect(() => {
     startConfetti();
+    const timeout1 = setTimeout(() => {
+      runVerletConfettiAnimation();
+    }, 3000);
+
+    return () => {
+      clearTimeout(timeout1);
+    };
   }, []);
 
   const books = [
@@ -23,16 +30,20 @@ export default function Home() {
   return (
     <>
       {/* <ParticleExplosion /> */}
-      <canvas
-        id="canvas"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
-      ></canvas>
+
+      <div id="canvas-container-div">
+        <canvas
+          id="canvas"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        ></canvas>
+      </div>
+
       <div className="book-container">
         <BookFloatingGrid books={books} />;
       </div>
