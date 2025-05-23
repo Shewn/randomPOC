@@ -34,7 +34,7 @@ class Particle {
     this.speed = getRandom(3, 8);
     this.velocity = [
       getRandom(-this.speed, this.speed),
-      getRandom(-this.speed * 1.5, -this.speed * 0.5),
+      getRandom(-this.speed * 2, -this.speed * 1.5),
     ];
   }
 
