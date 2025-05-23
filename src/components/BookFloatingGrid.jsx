@@ -170,7 +170,7 @@ export default function BookCarousel3D({ books }) {
     else if (swipe > 50) handlePrev();
   };
 
-  const radius = 300;
+  const radius = 400;
 
   return (
     <motion.div

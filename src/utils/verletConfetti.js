@@ -245,6 +245,7 @@ export const runVerletConfettiAnimation = () => {
     VX.spans = [];
     VX.skins = [];
     confettis = [];
+    VX.clearCanvas();
   }
 
   scaleToWindow();
@@ -260,5 +261,6 @@ export const runVerletConfettiAnimation = () => {
   }, 2000);
   setTimeout(() => {
     stopConfetti();
+    window.Canvas = null;
   }, 2500);
 };
