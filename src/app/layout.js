@@ -21,14 +21,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <Script
+        {/* <Script
           src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/409445/jquery-3.4.1.min.js"
           strategy="beforeInteractive"
         />
         <Script
           src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/409445/verletExpress.js"
           strategy="beforeInteractive"
-        />
+        /> */}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

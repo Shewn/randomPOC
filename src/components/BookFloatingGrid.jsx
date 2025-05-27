@@ -25,11 +25,9 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
   const x = radius * Math.sin(rad);
   const z = radius * Math.cos(rad);
 
-  // Shadow intensity and offset based on depth
-  const shadowDepth = Math.max(0, 1 - z / 600); // 1 (front) -> ~0 (back)
-  const shadowOffsetY = 10 + shadowDepth * 20; // offset more when closer
+  const shadowDepth = Math.max(0, 1 - z / 600);
+  const shadowOffsetY = 10 + shadowDepth * 20;
   const shadowBlur = 15 + shadowDepth * 30;
-
   const shadowColor = `rgba(0, 0, 0, ${0.3 + shadowDepth * 0.2})`;
 
   const hoverGlow = isHovered
@@ -40,20 +38,13 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
   }`;
 
   const isFront = Math.abs((bookAngle % 360) - 0) < anglePerBook / 2;
-
   const blurAmount = isFront ? 0 : 1;
-
-  const angleToFront = Math.abs((bookAngle % 360) - 180);
-
-  const normalizedAngle = normalizeAngle(bookAngle);
-  const angleToBack = Math.abs(normalizedAngle - 180);
-
+  const angleToBack = Math.abs(normalizeAngle(bookAngle) - 180);
   const isBack = angleToBack < anglePerBook / 2;
 
   const scale = isFront ? 1.2 : isBack ? 0.7 : 1;
   const finalScale = isHovered ? scale + 0.1 : scale;
-
-  const verticalLift = isBack ? -250 : isFront ? 75 : Math.random() * 100 - 130; // move upward if it's the farthest back
+  const verticalLift = isBack ? -250 : isFront ? 75 : Math.random() * 100 - 130;
   const horizontalShift = isBack ? 40 : Math.random() * 60 - 30;
 
   const controls = useAnimation();
@@ -65,10 +56,7 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
       setFloatOffset(newOffset);
       controls.start(newOffset);
     };
-
-    // Random initial delay
     const initialDelay = Math.random() * 2000;
-
     const timeout = setTimeout(() => {
       randomFloat();
       const interval = setInterval(
@@ -80,6 +68,8 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
 
     return () => clearTimeout(timeout);
   }, [controls]);
+
+  const rating = book.rating ?? (Math.random() * 4 + 1).toFixed(1); // fallback if no rating
 
   return (
     <motion.div
@@ -93,14 +83,8 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
         zIndex: isFront ? 20 : isBack ? 5 : 15,
       }}
     >
-      <motion.img
-        src={book.cover}
-        alt={book.title}
-        className="w-full h-full object-cover shadow-xl cursor-pointer"
-        style={{
-          filter: `blur(${blurAmount}px)`,
-          boxShadow,
-        }}
+      <motion.div
+        className="relative w-full h-full"
         animate={{
           x: x + floatOffset.x + horizontalShift,
           y: `calc(-50% + ${floatOffset.y + verticalLift}px)`,
@@ -108,24 +92,31 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
           rotateY: 0,
           rotate: floatOffset.rotate,
           scale: finalScale,
-          // zIndex: isFront ? 20 : 5,
           opacity: 1,
         }}
+        transition={{ type: "spring", stiffness: 200, damping: 30 }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        transition={{ type: "spring", stiffness: 200, damping: 30 }}
-        draggable={false}
-      />
-      {/* {isHovered && (
-        <motion.div
-          className="absolute top-0 left-0 w-full h-full pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <div className="w-full h-full rounded-xl shimmer-overlay" />
-        </motion.div>
-      )} */}
+      >
+        <img
+          src={book.cover}
+          alt={book.title}
+          className="w-full h-full object-cover rounded-xl shadow-xl"
+          style={{ filter: `blur(${blurAmount}px)`, boxShadow }}
+          draggable={false}
+        />
+
+        {/* Top-left badge */}
+        <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full shadow-md">
+          New!
+        </div>
+
+        {/* Bottom-right rating badge */}
+        <div className="absolute bottom-2 right-2 bg-white text-gray-800 text-xs px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
+          ⭐ {rating}
+        </div>
+      </motion.div>
+
       {isHovered && (
         <motion.div
           className="absolute inset-0 rounded-xl pointer-events-none"

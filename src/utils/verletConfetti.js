@@ -15,7 +15,7 @@ export const runVerletConfettiAnimation = () => {
   var beginWithBurst = true;
   var confettis = [];
   var confettiCount = 0;
-  var confettiVolumeInit = 150;
+  var confettiVolumeInit = 100;
   var confettiVolumeMax = confettiVolumeInit + 25;
   var confettiWidthMin = VX.interfaceHeight * 0.01;
   var confettiWidthMax = VX.interfaceHeight * 0.015;
@@ -225,7 +225,7 @@ export const runVerletConfettiAnimation = () => {
       p.cx += xv;
       p.cy += yv;
       p.cy += VX.gravity * p.mass;
-      if (VX.worldTime % VX.rib(100, 200) == 0) {
+      if (VX.worldTime % 150 == 0) {
         p.cx += VX.rfb(-VX.breeze, VX.breeze);
       }
     }
