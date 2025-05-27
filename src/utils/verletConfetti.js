@@ -31,6 +31,15 @@ export const runVerletConfettiAnimation = () => {
   var confettiVelocityBase = confettiWidthMax * 0.5;
   var initialBurstIntensity = confettiWidthMax * 5;
 
+  const customisedParticlesColor = [
+    "rgba(58, 45, 40, 1)",
+    "rgba(164, 131, 116, 1)",
+    "rgba(203, 173, 141, 1)",
+    "rgba(209, 199, 189, 1)",
+    "rgba(235, 227, 219, 1)",
+    "rgba(241, 237, 230, 1)",
+  ];
+
   ///colors
   var confettiAlpha = 1; // confetti alpha
   var randomPalette = generateRandomPalette(5);
@@ -49,12 +58,7 @@ export const runVerletConfettiAnimation = () => {
   function generateRandomPalette(colorCount) {
     var palette = [];
     for (var i = 0; i < colorCount; i++) {
-      palette.push(
-        `rgba( ${VX.rib(0, 255)}, ${VX.rib(0, 255)}, ${VX.rib(
-          0,
-          255
-        )}, ${confettiAlpha} )`
-      );
+      palette.push(customisedParticlesColor[i]);
     }
     return palette;
   }

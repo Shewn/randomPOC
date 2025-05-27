@@ -355,8 +355,8 @@ class Universe {
       this.width,
       this.height
     );
-    gradient.addColorStop(0, "#34495e");
-    gradient.addColorStop(1, "#2c3e50");
+    gradient.addColorStop(0, "#f1ede6");
+    gradient.addColorStop(1, "#f1ede6");
 
     this.ctx.clearRect(0, 0, this.width, this.height);
     // this.ctx.fillStyle = '#2c3e50'

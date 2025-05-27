@@ -54,7 +54,7 @@ body {
   margin: 0;
   overflow: hidden;
   font-family: "Inconsolata", monospace;
-  background: #2c3e50; /* fallback background */
+  background: #f1ede6; /* fallback background */
 }
 
 #canvas {
