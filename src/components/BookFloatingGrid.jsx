@@ -107,9 +107,11 @@ const FloatingBook = ({ book, index, total, radius, currentAngle }) => {
         />
 
         {/* Top-left badge */}
-        <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full shadow-md">
-          New!
-        </div>
+        {book.IsNew && (
+          <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full shadow-md">
+            New!
+          </div>
+        )}
 
         {/* Bottom-right rating badge */}
         <div className="absolute bottom-2 right-2 bg-white text-gray-800 text-xs px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">

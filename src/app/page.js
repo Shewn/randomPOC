@@ -19,12 +19,27 @@ export default function Home() {
   }, []);
 
   const books = [
-    { title: "Book 1", cover: "/posters/poster1.jpg", rating: 3.4 },
+    {
+      title: "Book 1",
+      cover: "/posters/poster1.jpg",
+      rating: 3.4,
+      IsNew: true,
+    },
     { title: "Book 2", cover: "/posters/poster2.jpg", rating: 4.7 },
-    { title: "Book 3", cover: "/posters/poster3.jpg", rating: 3.2 },
+    {
+      title: "Book 3",
+      cover: "/posters/poster3.jpg",
+      rating: 3.2,
+      IsNew: true,
+    },
     { title: "Book 4", cover: "/posters/poster4.jpg", rating: 5.0 },
     { title: "Book 5", cover: "/posters/poster5.jpg", rating: 4.4 },
-    { title: "Book 6", cover: "/posters/poster6.jpg", rating: 4.8 },
+    {
+      title: "Book 6",
+      cover: "/posters/poster6.jpg",
+      rating: 4.8,
+      IsNew: true,
+    },
   ];
 
   return (
